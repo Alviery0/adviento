@@ -1,0 +1,11 @@
+Pon aquí las fotos con estos nombres exactos (en minúscula, formato .jpg):
+
+navi.jpg       -> día 16, foto de Navi
+recuerdo1.jpg  -> día 23, "Donde empezó todo"
+recuerdo2.jpg  -> día 23, "Mi foto favorita de ti"
+recuerdo3.jpg  -> día 23, "Ese día que no paramos de reír"
+recuerdo4.jpg  -> día 23, "Y los que nos faltan"
+nosotros.jpg   -> día 24, foto de los dos
+
+Si falta alguna foto, la página simplemente no la muestra.
+Los textos debajo de cada foto se cambian en index.html (busca "figcaption").

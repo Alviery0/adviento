@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Calendario de Adviento de Sarita</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎁</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg1: #fdeef4; --bg2: #ece6fb; --bg3: #e3f4f1;
+    --ink: #5b4a6b; --ink-soft: #8c7a9c;
+    --rose: #f7a8c4; --lila: #c9b6f2; --mint: #a8dcc9; --gold: #e9c46a;
+    --red: #e58a9b; --card: #fffdfb;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh;
+    font-family: 'Quicksand', system-ui, sans-serif;
+    color: var(--ink);
+    background: linear-gradient(160deg, var(--bg1), var(--bg2) 55%, var(--bg3));
+    background-attachment: fixed;
+    overflow-x: hidden;
+  }
+  h1, h2, .xmas { font-family: 'Mountains of Christmas', 'Quicksand', cursive; }
+
+  /* Nieve */
+  .snow { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .snow span {
+    position: absolute; top: -5vh; color: #fff; opacity: .85;
+    text-shadow: 0 0 6px rgba(201,182,242,.9);
+    animation: fall linear infinite;
+  }
+  @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
+
+  main { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 28px 16px 48px; }
+
+  header { text-align: center; }
+  .garland { font-size: 1.5rem; letter-spacing: .35em; }
+  h1 { font-size: clamp(2rem, 9vw, 3rem); margin: 6px 0 4px; line-height: 1.05; color: #b0527a; }
+  .sub { margin: 0 auto; max-width: 30em; color: var(--ink-soft); font-weight: 500; }
+
+  .status {
+    margin: 20px auto 24px; padding: 14px 18px; text-align: center;
+    background: rgba(255,255,255,.75); border: 2px dashed var(--rose); border-radius: 18px;
+    font-weight: 700;
+  }
+  .status small { display: block; font-weight: 500; color: var(--ink-soft); margin-bottom: 2px; }
+  .status .big { font-size: 1.35rem; color: #b0527a; font-variant-numeric: tabular-nums; }
+
+  /* Rejilla de regalos */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 12px; }
+  .gift {
+    appearance: none; border: 0; background: none; padding: 0; cursor: pointer;
+    font: inherit; color: inherit; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .gift:focus-visible { outline: 3px solid var(--lila); outline-offset: 6px; border-radius: 12px; }
+  .pkg { position: relative; width: 100%; max-width: 130px; aspect-ratio: 1 / 1.05; }
+  .topper {
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+    font-size: clamp(1.7rem, 8vw, 2.4rem); z-index: 3; line-height: 1;
+    filter: drop-shadow(0 2px 2px rgba(91,74,107,.25));
+    transition: transform .5s;
+  }
+  .lid, .box { position: absolute; left: 50%; border-radius: 8px; background: var(--c); }
+  .lid {
+    top: 27%; width: 96%; height: 20%; transform: translateX(-50%); z-index: 2;
+    box-shadow: 0 3px 0 rgba(91,74,107,.12);
+    transition: transform .5s cubic-bezier(.3,1.6,.5,1);
+  }
+  .box {
+    top: 44%; width: 84%; height: 56%; transform: translateX(-50%);
+    box-shadow: inset 0 -10px 0 rgba(91,74,107,.08), 0 8px 14px rgba(91,74,107,.15);
+  }
+  .lid::after, .box::after {  /* cinta */
+    content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 18%;
+    transform: translateX(-50%); background: var(--r);
+  }
+  .num {
+    position: absolute; right: 6%; bottom: 6%; z-index: 2;
+    background: #fff; color: #b0527a; font-weight: 700; font-size: .95rem;
+    width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center;
+    box-shadow: 0 2px 4px rgba(91,74,107,.2);
+  }
+  .label { margin-top: 8px; font-size: .78rem; font-weight: 700; color: var(--ink-soft); min-height: 2.2em; }
+
+  .gift.locked .pkg { filter: saturate(.55) opacity(.8); }
+  .gift.locked .topper::after {
+    content: '🔒'; position: absolute; font-size: .55em; right: -0.7em; bottom: -0.2em;
+  }
+  .gift.ready .pkg { animation: wiggle 1.6s ease-in-out infinite; }
+  .gift.ready .label { color: #b0527a; }
+  .gift.ready .box { box-shadow: inset 0 -10px 0 rgba(91,74,107,.08), 0 0 0 4px rgba(255,255,255,.9), 0 0 22px 6px var(--gold); }
+  .gift.opened .lid { transform: translateX(-62%) translateY(-55%) rotate(-16deg); }
+  .gift.opened .topper { transform: translateX(-50%) translateY(-18%) scale(1.15); }
+  .gift.shake .pkg { animation: shake .45s; }
+  @keyframes wiggle {
+    0%, 60%, 100% { transform: rotate(0) translateY(0); }
+    70% { transform: rotate(-5deg) translateY(-6px); }
+    80% { transform: rotate(5deg) translateY(-6px); }
+    90% { transform: rotate(-3deg) translateY(0); }
+  }
+  @keyframes shake {
+    25% { transform: translateX(-6px) rotate(-3deg); } 50% { transform: translateX(6px) rotate(3deg); }
+    75% { transform: translateX(-4px); }
+  }
+
+  footer { text-align: center; margin-top: 34px; color: var(--ink-soft); font-size: .9rem; }
+  footer b { color: #b0527a; }
+
+  /* Aviso flotante */
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 150%);
+    background: var(--ink); color: #fff; padding: 12px 18px; border-radius: 999px;
+    font-weight: 700; font-size: .92rem; z-index: 30; max-width: calc(100vw - 32px);
+    text-align: center; transition: transform .35s cubic-bezier(.3,1.4,.5,1);
+  }
+  .toast.show { transform: translate(-50%, 0); }
+
+  /* Ventana del regalo */
+  dialog {
+    border: 0; padding: 0; border-radius: 24px; background: var(--card); color: var(--ink);
+    width: min(92vw, 480px); max-height: 88vh; overflow: auto;
+    box-shadow: 0 20px 60px rgba(91,74,107,.45);
+  }
+  dialog::backdrop { background: rgba(91,74,107,.55); backdrop-filter: blur(3px); }
+  dialog[open] { animation: pop .45s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes pop { from { transform: scale(.6); opacity: 0; } }
+  .d-head {
+    padding: 22px 20px 16px; text-align: center; color: #fff;
+    background: linear-gradient(135deg, var(--rose), var(--lila));
+  }
+  .d-head .emoji { font-size: 3rem; line-height: 1; }
+  .d-head .day { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; opacity: .9; margin-top: 6px; }
+  .d-head h2 { margin: 2px 0 0; font-size: 1.8rem; line-height: 1.1; }
+  .d-body { padding: 18px 20px 6px; line-height: 1.55; }
+  .d-body p { margin: 0 0 12px; }
+  .d-foot { padding: 8px 20px 22px; text-align: center; }
+  .btn {
+    border: 0; cursor: pointer; font: inherit; font-weight: 700; color: #fff;
+    background: #d3729a; padding: 12px 26px; border-radius: 999px;
+    box-shadow: 0 4px 0 #b0527a;
+  }
+  .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #b0527a; }
+
+  /* Piezas de contenido */
+  .foto { display: block; width: 100%; border-radius: 16px; margin: 0 0 12px; border: 5px solid #fff; box-shadow: 0 4px 14px rgba(91,74,107,.2); }
+  .galeria { display: grid; gap: 14px; }
+  .galeria figure { margin: 0; }
+  .galeria figcaption { text-align: center; font-weight: 700; color: var(--ink-soft); margin-top: -4px; }
+  .cupon {
+    margin: 4px 0 14px; padding: 16px; text-align: center; border-radius: 16px;
+    background: repeating-linear-gradient(45deg, #fff5f9, #fff5f9 12px, #fdeef4 12px, #fdeef4 24px);
+    border: 3px dashed var(--red);
+  }
+  .cupon .t { font-size: .75rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--red); }
+  .cupon .v { font-family: 'Mountains of Christmas', cursive; font-size: 1.55rem; color: #b0527a; line-height: 1.15; margin: 4px 0; }
+  .cupon .c { font-size: .8rem; color: var(--ink-soft); }
+  .fisico {
+    margin: 4px 0 14px; padding: 14px 16px; border-radius: 16px; text-align: center;
+    background: #fff8e6; border: 2px solid var(--gold); font-weight: 700;
+  }
+  .fisico span { display: block; font-weight: 500; font-size: .88rem; color: var(--ink-soft); margin-top: 4px; }
+  .carta { background: #fffaf2; border-left: 5px solid var(--rose); padding: 14px 16px; border-radius: 0 14px 14px 0; margin-bottom: 14px; }
+  .firma { text-align: right; font-family: 'Mountains of Christmas', cursive; font-size: 1.4rem; color: #b0527a; margin: 0 0 12px; }
+  .informe { border: 2px solid var(--lila); border-radius: 14px; padding: 14px 16px; margin-bottom: 14px; background: #faf7ff; }
+  .informe h3 { margin: 0 0 8px; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; color: #8a6fd1; text-align: center; }
+  .informe dl { margin: 0; } .informe dt { font-weight: 700; margin-top: 8px; } .informe dd { margin: 0; }
+  .lista { list-style: none; padding: 0; margin: 0 0 14px; }
+  .lista li { padding: 9px 12px; border-radius: 12px; background: #f6f1ff; margin-bottom: 6px; font-weight: 500; }
+  .lista li b { color: #8a6fd1; }
+  .contador { text-align: center; font-weight: 700; color: #b0527a; background: #fdeef4; border-radius: 14px; padding: 12px; margin-bottom: 14px; }
+  a.link { color: #b0527a; font-weight: 700; }
+
+  .confetti { position: fixed; z-index: 40; pointer-events: none; font-size: 1.4rem; animation: boom 1.5s ease-out forwards; }
+  @keyframes boom { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .snow, .confetti { display: none; }
+    .gift.ready .pkg, dialog[open] { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="snow" id="snow" aria-hidden="true"></div>
+
+<main>
+  <header>
+    <div class="garland" aria-hidden="true">🎄🦄⭐🐶🎄</div>
+    <h1>Calendario de Adviento de Sarita</h1>
+    <p class="sub">Nueve regalitos, uno por día, del 16 al 24 de diciembre. Nada de espiar, pastelito.</p>
+  </header>
+
+  <div class="status" id="status" aria-live="polite"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer>
+    <p id="juntos"></p>
+    <p>Hecho con mucho amor por <b>tu amorcito</b> 💝</p>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <div class="d-head">
+    <div class="emoji" id="dlgEmoji"></div>
+    <div class="day" id="dlgDay"></div>
+    <h2 id="dlgTitle"></h2>
+  </div>
+  <div class="d-body" id="dlgBody"></div>
+  <div class="d-foot"><button class="btn" id="dlgClose">Cerrar 💝</button></div>
+</dialog>
+
+<script>
+/* ============================================================
+   ZONA EDITABLE — aquí cambias todo sin tocar el resto.
+   ============================================================ */
+
+const ANIO = 2026;
+const HORA_ULTIMO_REGALO = 18;          // el 24 se abre a las 6 p. m. (pon 20 para las 8 p. m.)
+const ANIVERSARIO = new Date(2019, 3, 5); // 5 de abril de 2019
+const CLAVE_VISTA_PREVIA = 'tuamorcito';  // abre la página con ?vista=tuamorcito para ver todo
+
+// Pega aquí el enlace de tu playlist (Spotify / YouTube). Si lo dejas vacío no aparece el botón.
+const PLAYLIST_URL = '';
+
+// Las fotos van en la carpeta "fotos" con estos nombres exactos.
+// Si una foto no existe, simplemente no se muestra.
+const foto = (archivo, alt) =>
+  `<img class="foto" src="fotos/${archivo}" alt="${alt}" onerror="this.remove()">`;
+
+const REGALOS = [
+  {
+    dia: 16, icono: '🐶', color: '#f7a8c4', cinta: '#fff',
+    titulo: 'Una carta de Navi',
+    html: `
+      ${foto('navi.jpg', 'Navi')}
+      <div class="carta">
+        <p>¡Guau, mami! 🐾</p>
+        <p>Soy yo, Navi. Me pidieron que te entregara el primer regalo porque soy la más bonita de la casa (después de ti).</p>
+        <p>Quiero que sepas que eres la mejor humana del mundo: me das comida, me consientes y me dejas dormir contigo. A cambio yo te cuido y te lleno de pelitos blancos toda la ropa. Trato justo.</p>
+        <p>Desde hoy y hasta el 24 vas a tener un regalito cada día. Yo ya sé qué son todos, pero no pienso ladrar ni una pista.</p>
+      </div>
+      <p class="firma">Con lamiditas, Navi 🐶🎀</p>
+      <div class="cupon">
+        <div class="t">Vale por</div>
+        <div class="v">Un paseo largo con Navi y tu amorcito</div>
+        <div class="c">Incluye helado para las humanas y premio para la perrita.</div>
+      </div>`
+  },
+  {
+    dia: 17, icono: '🍪', color: '#f3d2a6', cinta: '#e58a9b',
+    titulo: 'Tarde de repostería navideña',
+    html: `
+      <p>Pastelito, hoy el regalo es para la mejor repostera que conozco.</p>
+      <div class="cupon">
+        <div class="t">Vale por</div>
+        <div class="v">Una tarde horneando galletas de Navidad juntos</div>
+        <div class="c">Yo llevo todos los ingredientes, tú pones la magia. Yo lavo los platos.</div>
+      </div>
+      <p>Advertencia: es muy probable que me coma la mitad de la masa antes de que llegue al horno.</p>`
+  },
+  {
+    dia: 18, icono: '🎤', color: '#c9b6f2', cinta: '#fdeef4',
+    titulo: 'Navidad con tus idols',
+    html: `
+      <p>Ni Twice, ni Stray Kids, ni Ateez pudieron venir a cantarte en persona (les escribí, me dejaron en visto), así que te armé esto:</p>
+      <ul class="lista">
+        <li><b>TWICE</b> · Merry &amp; Happy</li>
+        <li><b>TWICE</b> · What is Love?</li>
+        <li><b>Stray Kids</b> · Christmas EveL</li>
+        <li><b>Stray Kids</b> · Winter Falls</li>
+        <li><b>ATEEZ</b> · Wave</li>
+        <li><b>ATEEZ</b> · Eternal Sunshine</li>
+      </ul>
+      ${PLAYLIST_URL ? `<p style="text-align:center"><a class="link" href="${PLAYLIST_URL}" target="_blank" rel="noopener">▶ Abrir la playlist</a></p>` : ''}
+      <div class="fisico">🎁 ¡Y hoy también hay regalo de verdad!
+        <span>Algo de tus grupos favoritos. Tu amorcito te lo entrega hoy en persona.</span>
+      </div>`
+  },
+  {
+    dia: 19, icono: '🦄', color: '#bfe3f5', cinta: '#f7a8c4',
+    titulo: 'Entrega mágica',
+    html: `
+      <p>Un unicornio pasó volando por el Polo Norte, se robó un regalo del trineo de Santa y me lo dejó a mí para que te lo diera.</p>
+      <div class="fisico">🦄 ¡Te ganaste un regalo unicornioso!
+        <span>Tu amorcito te lo entrega hoy en persona. Es suavecito, eso es lo único que voy a decir.</span>
+      </div>
+      <p>Dato comprobado: los unicornios sí existen, yo salgo con uno.</p>`
+  },
+  {
+    dia: 20, icono: '🥋', color: '#9ec5f0', cinta: '#3f6fb5',
+    titulo: 'Ascenso de cinturón',
+    html: `
+      <div class="informe">
+        <h3>Diploma oficial</h3>
+        <p style="text-align:center;margin:0">Se certifica que <b>Sarita</b>, cinturón azul de taekwondo, es además</p>
+        <p class="xmas" style="text-align:center;font-size:1.5rem;color:#3f6fb5;margin:6px 0">Cinturón negro en robarme el corazón</p>
+        <p style="text-align:center;margin:0">Ganado por nocaut desde el 5 de abril de 2019.</p>
+      </div>
+      <div class="cupon">
+        <div class="t">Vale por</div>
+        <div class="v">Un masaje completo después de entrenar</div>
+        <div class="c">Canjeable el día que más te duelan las piernas. Sin fecha de vencimiento.</div>
+      </div>`
+  },
+  {
+    dia: 21, icono: '🧠', color: '#f5b8cf', cinta: '#c9b6f2',
+    titulo: 'Informe psicológico',
+    html: `
+      <div class="informe">
+        <h3>Historia clínica N.º 05-04-2019</h3>
+        <dl>
+          <dt>Paciente</dt><dd>Tu amorcito.</dd>
+          <dt>Motivo de consulta</dt><dd>No puede dejar de pensar en una tal Sarita.</dd>
+          <dt>Síntomas</dt><dd>Sonrisa boba al ver sus mensajes, antojo constante de sus postres, taquicardia cuando ella se ríe.</dd>
+          <dt>Diagnóstico</dt><dd>Enamoramiento crónico severo, de más de siete años de evolución.</dd>
+          <dt>Tratamiento</dt><dd>Un beso cada ocho horas y abrazos a libre demanda.</dd>
+          <dt>Pronóstico</dt><dd>Incurable. El paciente manifiesta que no quiere curarse.</dd>
+        </dl>
+      </div>
+      <div class="fisico">📚 ¡Hoy hay regalo de verdad para la futura psicóloga!
+        <span>Tu amorcito te lo entrega hoy en persona.</span>
+      </div>`
+  },
+  {
+    dia: 22, icono: '☕', color: '#a8dcc9', cinta: '#fff',
+    titulo: 'Esta noche cocino yo',
+    html: `
+      <p>Amor, tú siempre cocinas rico para todos. Hoy te toca sentarte, que el chef soy yo.</p>
+      <div class="cupon">
+        <div class="t">Vale por</div>
+        <div class="v">Cena hecha por mí + película navideña con chocolate caliente</div>
+        <div class="c">Tú eliges la película y la cobija. Prohibido entrar a la cocina a corregirme.</div>
+      </div>
+      <p>No prometo estrellas Michelin, pero sí mucho cariño y que no se queme nada (importante).</p>`
+  },
+  {
+    dia: 23, icono: '🔮', color: '#d9c8f7', cinta: '#e9c46a',
+    titulo: 'Nuestra bola de nieve',
+    html: `
+      <p>Si agitas esta bola de nieve, lo que cae no es nieve: son recuerdos contigo, cielo.</p>
+      <div class="galeria">
+        <figure>${foto('recuerdo1.jpg', 'Recuerdo 1')}<figcaption>Donde empezó todo</figcaption></figure>
+        <figure>${foto('recuerdo2.jpg', 'Recuerdo 2')}<figcaption>Mi foto favorita de ti</figcaption></figure>
+        <figure>${foto('recuerdo3.jpg', 'Recuerdo 3')}<figcaption>Ese día que no paramos de reír</figcaption></figure>
+        <figure>${foto('recuerdo4.jpg', 'Recuerdo 4')}<figcaption>Y los que nos faltan</figcaption></figure>
+      </div>
+      <p style="margin-top:14px">Mañana es el último regalo. Se abre a las <b>6:00 p. m.</b>, así que paciencia, bebé.</p>`
+  },
+  {
+    dia: 24, icono: '🎄', color: '#f2d680', cinta: '#e58a9b',
+    titulo: 'Feliz Navidad, mi amor',
+    html: `
+      ${foto('nosotros.jpg', 'Nosotros')}
+      <div class="contador" id="contador24"></div>
+      <div class="carta">
+        <p>Sarita, mi amor:</p>
+        <p>Llegaste al último regalo. Estos nueve días fueron mi forma de decirte algo que a veces no digo lo suficiente: que admiro todo de ti. Lo dedicada que eres con tu carrera, la fuerza con la que entrenas, lo rico que cocinas, cómo quieres a Navi y hasta cómo te emocionas con un comeback.</p>
+        <p>Gracias por todos estos años, por cada Navidad juntos y por dejarme ser parte de tu vida. Mi mejor regalo sigues siendo tú.</p>
+        <p>Te amo, pastelito.</p>
+      </div>
+      <p class="firma">Tu amorcito 💝</p>
+      <div class="fisico">🎁 ¡Falta el regalo más grande!
+        <span>Búscame, que te lo quiero dar con un abrazo.</span>
+      </div>`
+  }
+];
+
+/* ============================================================
+   FIN DE LA ZONA EDITABLE
+   ============================================================ */
+
+const APODOS = ['pastelito', 'amorcito', 'cielo', 'bebé', 'Sarita', 'amor'];
+const MESES = 'dic';
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(location.search);
+const PREVIA = params.get('vista') === CLAVE_VISTA_PREVIA;
+
+// Colombia es UTC-5 todo el año: medianoche en Colombia = 05:00 UTC.
+function abreEn(dia) {
+  const hora = dia === 24 ? HORA_ULTIMO_REGALO : 0;
+  return Date.UTC(ANIO, 11, dia, hora + 5, 0, 0);
+}
+const desbloqueado = dia => PREVIA || Date.now() >= abreEn(dia);
+
+let abiertos = [];
+try { abiertos = JSON.parse(localStorage.getItem('adviento-sarita') || '[]'); } catch (e) {}
+function guardar() {
+  if (PREVIA) return;
+  try { localStorage.setItem('adviento-sarita', JSON.stringify(abiertos)); } catch (e) {}
+}
+
+function horaTexto(dia) {
+  if (dia !== 24) return '';
+  const h = HORA_ULTIMO_REGALO % 12 || 12;
+  return ` a las ${h}:00 ${HORA_ULTIMO_REGALO < 12 ? 'a. m.' : 'p. m.'}`;
+}
+
+function pintar() {
+  const grid = $('grid');
+  grid.innerHTML = '';
+  REGALOS.forEach(r => {
+    const libre = desbloqueado(r.dia);
+    const abierto = libre && abiertos.includes(r.dia);
+    const estado = !libre ? 'locked' : abierto ? 'opened' : 'ready';
+    const texto = !libre ? `Se abre el ${r.dia} ${MESES}${r.dia === 24 ? '<br>' + horaTexto(24).trim() : ''}`
+                : abierto ? 'Abierto · ver otra vez' : '¡Ábreme!';
+    const b = document.createElement('button');
+    b.className = 'gift ' + estado;
+    b.style.setProperty('--c', r.color);
+    b.style.setProperty('--r', r.cinta);
+    b.setAttribute('aria-label', `Regalo del ${r.dia} de diciembre: ${!libre ? 'bloqueado' : abierto ? 'abierto' : 'listo para abrir'}`);
+    b.innerHTML = `
+      <div class="pkg">
+        <div class="topper">${r.icono}</div>
+        <div class="lid"></div>
+        <div class="box"></div>
+        <div class="num">${r.dia}</div>
+      </div>
+      <div class="label">${texto}</div>`;
+    b.addEventListener('click', () => tocar(r, b));
+    grid.appendChild(b);
+  });
+}
+
+function tocar(r, boton) {
+  if (!desbloqueado(r.dia)) {
+    boton.classList.remove('shake'); void boton.offsetWidth; boton.classList.add('shake');
+    const apodo = APODOS[Math.floor(Math.random() * APODOS.length)];
+    aviso(`¡Todavía no, ${apodo}! 🙈 Este se abre el ${r.dia} de diciembre${horaTexto(r.dia)}.`);
+    return;
+  }
+  const primeraVez = !abiertos.includes(r.dia);
+  if (primeraVez) { abiertos.push(r.dia); guardar(); confeti(boton); }
+  boton.className = 'gift opened';
+  setTimeout(() => { mostrar(r); pintar(); estado(); }, primeraVez ? 550 : 0);
+}
+
+function mostrar(r) {
+  $('dlgEmoji').textContent = r.icono;
+  $('dlgDay').textContent = `${r.dia} de diciembre`;
+  $('dlgTitle').textContent = r.titulo;
+  $('dlgBody').innerHTML = r.html;
+  const c = $('contador24');
+  if (c) c.textContent = `Llevamos ${tiempoJuntos()} juntos, y contando.`;
+  $('dlg').showModal();
+  $('dlg').scrollTop = 0;
+}
+$('dlgClose').addEventListener('click', () => $('dlg').close());
+$('dlg').addEventListener('click', e => { if (e.target === $('dlg')) $('dlg').close(); });
+
+let tAviso;
+function aviso(msg) {
+  const t = $('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(tAviso); tAviso = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function confeti(el) {
+  const caja = el.getBoundingClientRect();
+  const x = caja.left + caja.width / 2, y = caja.top + caja.height / 3;
+  const piezas = ['✨', '⭐', '💖', '🎀', '❄️', '🦄', '🍬', '💜'];
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span');
+    s.className = 'confetti';
+    s.textContent = piezas[i % piezas.length];
+    const ang = Math.random() * Math.PI * 2, dist = 80 + Math.random() * 170;
+    s.style.left = x + 'px'; s.style.top = y + 'px';
+    s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(ang) * dist - 60 + 'px');
+    s.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1600);
+  }
+}
+
+function tiempoJuntos(hasta = new Date()) {
+  let a = hasta.getFullYear() - ANIVERSARIO.getFullYear();
+  let m = hasta.getMonth() - ANIVERSARIO.getMonth();
+  let d = hasta.getDate() - ANIVERSARIO.getDate();
+  if (d < 0) { m--; d += new Date(hasta.getFullYear(), hasta.getMonth(), 0).getDate(); }
+  if (m < 0) { a--; m += 12; }
+  const p = (n, s, pl) => `${n} ${n === 1 ? s : pl}`;
+  return `${p(a, 'año', 'años')}, ${p(m, 'mes', 'meses')} y ${p(d, 'día', 'días')}`;
+}
+
+let ultimoEstado = '';
+function estado() {
+  const libres = REGALOS.filter(r => desbloqueado(r.dia));
+  const pendiente = libres.find(r => !abiertos.includes(r.dia));
+  const proximo = REGALOS.find(r => !desbloqueado(r.dia));
+  let html;
+  if (pendiente) {
+    html = `<small>${PREVIA ? 'Vista previa: todo desbloqueado' : 'Hoy es tu día de suerte'}</small><span class="big">¡Tienes un regalo esperándote! 🎁</span>`;
+  } else if (proximo) {
+    let s = Math.max(0, Math.floor((abreEn(proximo.dia) - Date.now()) / 1000));
+    const d = Math.floor(s / 86400); s %= 86400;
+    const h = Math.floor(s / 3600); s %= 3600;
+    const m = Math.floor(s / 60); s %= 60;
+    const dos = n => String(n).padStart(2, '0');
+    html = `<small>Tu próximo regalo (el del ${proximo.dia}) se abre en</small><span class="big">${d > 0 ? d + 'd ' : ''}${dos(h)}h ${dos(m)}m ${dos(s)}s</span>`;
+  } else {
+    html = `<small>Abriste todos tus regalos</small><span class="big">¡Feliz Navidad, mi amor! 🎄💝</span>`;
+  }
+  $('status').innerHTML = html;
+
+  // Si un regalo se acaba de desbloquear, repinta la rejilla.
+  const firma = libres.length + '|' + abiertos.length;
+  if (firma !== ultimoEstado) { ultimoEstado = firma; pintar(); }
+}
+
+// Nieve
+(function nieve() {
+  const cont = $('snow');
+  for (let i = 0; i < 28; i++) {
+    const s = document.createElement('span');
+    s.textContent = i % 5 === 0 ? '✦' : '❄';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.fontSize = (0.6 + Math.random() * 0.9) + 'rem';
+    s.style.animationDuration = (8 + Math.random() * 10) + 's';
+    s.style.animationDelay = (-Math.random() * 18) + 's';
+    cont.appendChild(s);
+  }
+})();
+
+$('juntos').textContent = `Juntos desde el 5 de abril de 2019: ${tiempoJuntos()}.`;
+estado();
+setInterval(estado, 1000);
+</script>
+</body>
+</html>
